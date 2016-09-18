@@ -32,6 +32,7 @@ class AerialImage:
         pass
 
         # warp the image using SimpleCV
+        # leave the corners of the warped image transparent
         # save a high and low resolution image in the same folder
 
 
@@ -42,7 +43,7 @@ class Position:
     radians points North and pi / 2 points East, a pitch of 0 radians
     is horizontal and a positive pitch points upwards, and a roll of
     0 radians is level and a positive roll indicates the plane has
-    turned to the right. For the camera, a pitch of 0 radians points
+    rolled to the right. For the camera, a pitch of 0 radians points
     downwards and a positive pitch points towards the front of the
     plane and a roll of 0 radians points to the center of the plane
     and a positive roll points to the right.
