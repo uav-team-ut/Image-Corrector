@@ -21,7 +21,7 @@ class Client():
     def _start_thread(self):
         def client_thread():
             while not self._closed:
-                length = int(self._socket.recv(8))
+                length = int(self._socket.recv(8).decode('utf-8'))
 
                 if not length:
                     break
@@ -56,3 +56,7 @@ class Client():
 
         self._socket.shutdown()
         self._socket.close()
+
+    @property
+    def corrector(self):
+        return self._corrector

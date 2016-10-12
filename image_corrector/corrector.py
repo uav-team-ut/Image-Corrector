@@ -1,3 +1,4 @@
+from datetime import datetime
 from threading import Thread
 from time import sleep
 
@@ -13,6 +14,7 @@ class Corrector:
         self._image_list = []
         self._closed = False
 
+        self._archive_name = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self._empty_images()
 
         self._client = Client(self)
@@ -28,7 +30,7 @@ class Corrector:
                     image = AerialImage(self, new_file)
                     self.add_image(image)
 
-                    self._empty_images()
+                    self._empty_new()
 
                 sleep(0.1)
 
@@ -39,8 +41,8 @@ class Corrector:
 
         pass
 
-        # TODO: return new files as file objects, return None if
-        # there aren't any
+        # TODO: return new files in /new as a list of strings, return
+        # [] if there aren't any
 
     def _empty_images(self):
 
@@ -48,13 +50,35 @@ class Corrector:
 
         # TODO: empty the /current folder
 
+    def _empty_new(self):
+
+        pass
+
+        # TODO: empty the /new folder
+
     def add_image(self, image):
 
         self._image_list.append(image)
 
     @property
+    def archive_name(self):
+        return self._archive_name
+
+    @property
+    def client(self):
+        return self._client
+
+    @property
+    def image_folder(self):
+        return self._image_folder
+
+    @property
+    def image_list(self):
+        return self._image_list
+
+    @property
     def image_count(self):
-        return len(self._image_list)
+        return len(self.image_list)
 
     def close(self):
 

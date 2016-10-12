@@ -1,17 +1,49 @@
 import json
 
+from image import Position
 
 def _ping(client, message):
-    client.send(json.dumps({'type': 'ping', 'message': {}}))
+    ping = json.dumps({
+        'type': 'ping',
+        'message': {}
+    })
+
+    client.send(ping)
 
 
 def _close(client, message):
     client.close()
 
 
+def _telemetry(client, messsage):
+    if not message['type'] == 'data':
+        raise Exception('Unhandled telemetry message type:', message['type'])
+
+    number = message['image-number']
+
+    lat = message['lat']
+    lon = message['lon']
+    alt = message['alt']
+    yaw = message['yaw']
+    pitch = message['pitch']
+    roll = message['roll']
+    cam_pitch = message['cam_pitch']
+    cam_roll = message['cam_roll']
+
+    position = Position(lat, lon, alt, yaw, pitch, roll, cam_pitch, cam_roll)
+
+    client.corrector.image_list[number - 1].set_position(position)
+
+def _image(client, message):
+    pass
+
+    # TODO: Handle image requests
+
 _func_dict = {
     'ping': _ping,
     'close': _close
+    'telemetry': _telemetry
+    'image': _image
 }
 
 
