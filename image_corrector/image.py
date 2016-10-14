@@ -1,7 +1,7 @@
 import json
 from math import atan, tan, cos, sin, pi
 import os
-from shutil
+from shutil import copy2
 
 from geo_distance import Distance
 

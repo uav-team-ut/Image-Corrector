@@ -21,12 +21,12 @@ class Client():
     def _start_thread(self):
         def client_thread():
             while not self._closed:
-                length = int(self._socket.recv(8).decode('utf-8'))
+                length = self._socket.recv(8).decode('utf-8')
 
                 if not length:
                     break
 
-                message = self._socket.recv(length).decode('utf-8')
+                message = self._socket.recv(int(length)).decode('utf-8')
 
                 if not message:
                     break

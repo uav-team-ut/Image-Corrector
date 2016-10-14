@@ -41,9 +41,9 @@ def _image(client, message):
 
 _func_dict = {
     'ping': _ping,
-    'close': _close
-    'telemetry': _telemetry
-    'image': _image
+    'close': _close,
+    'telemetry': _telemetry,
+    'image': _image,
 }
 
 
