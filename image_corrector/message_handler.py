@@ -1,3 +1,4 @@
+import base64
 import json
 
 from image import Position
@@ -34,9 +35,10 @@ def _telemetry(client, messsage):
 
 def _image(client, message):
     number = message['number']
-    image = open(client.corrector.image_folder + \
-    '/current/' + str(number) + '.JPG','rb')
-    client.send(image.encode('base64'))
+    with open(client.corrector.image_folder + \
+    '/current/' + str(number) + '.JPG','rb') as image:
+        out = base64.b64encode(image.read()).decode('utf-8')
+        client.send(json.dumps({"image" : out}))
     # TODO: Handle image requests
 
 _func_dict = {

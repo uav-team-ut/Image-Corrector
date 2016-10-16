@@ -46,6 +46,9 @@ class Client():
             message = arg.encode('utf-8')
             length = '{:8d}'.format(len(message)).encode('utf-8')
 
+            if len(length) > 8:
+                raise Exception('Cannot send message. Too long.')
+
             if not self._closed:
                 self._socket.sendall(length)
                 self._socket.sendall(message)
