@@ -4,6 +4,7 @@ from time import sleep
 
 from client import Client
 from image import AerialImage
+from os import listdir
 
 
 class Corrector:
@@ -14,7 +15,7 @@ class Corrector:
         self._image_list = []
         self._closed = False
 
-        self._archive_name = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self._archive_name = datetime.now().strftime('%Y-%m-%d %H.%M.%S')
         self._empty_images()
 
         self._client = Client(self)
@@ -34,12 +35,12 @@ class Corrector:
 
                 sleep(0.1)
 
-        self._corrector_thread = Thread(target=corrector_thread)
+        self._corrector_thread = Thread(target=corrector_thread(self))
         self._corrector_thread.start()
 
     def _get_new_files(self):
 
-        pass
+        return (listdir(self._image_folder+'/new'))
 
         # TODO: return new files in /new as a list of strings, return
         # [] if there aren't any

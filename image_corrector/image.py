@@ -3,14 +3,15 @@ from math import atan, tan, cos, sin, pi
 import os
 from shutil import copy2
 
-from geo_distance import Distance
+from distance import Distance
 
 
 class AerialImage:
 
     def __init__(self, corrector, file_name):
+        self._corrector = corrector
         self._number = corrector.image_count + 1
-        self._file_name = str(self._number) + '.' +
+        self._file_name = str(self._number) + '.' + \
             file_name.split('.')[1]
         self._position = None
 
@@ -19,6 +20,7 @@ class AerialImage:
         time = os.path.getmtime(
             self._corrector.image_folder + '/new/' + file_name
         )
+        os.remove(self._corrector.image_folder + '/new/' + file_name)
 
         alert = json.dumps({
             'type': 'image',
@@ -58,15 +60,15 @@ class AerialImage:
         self._corrector.client.send(alert)
 
     def _save_original(self, file_name):
-        shutil.copy2(
+        copy2(
             self._corrector.image_folder + '/new/' + file_name,
             self._corrector.image_folder + '/current/' + self._file_name
         )
-
-        shutil.copy2(
+        copy2(
             self._corrector.image_folder + '/new/' + file_name,
-            self._corrector.image_folder + '/archive/' +
-            self._corrector.archive_name + '/' + self._file_name
+            self._corrector.image_folder + '/archive/' + \
+            self._corrector.archive_name + \
+            self._file_name[self._file_name.rfind('.'):]
         )
 
     @property

@@ -5,15 +5,13 @@ from image import Position
 def _ping(client, message):
     ping = json.dumps({
         'type': 'ping',
-        'message': {}
+        'message': 'Ping received'
     })
 
     client.send(ping)
 
-
 def _close(client, message):
     client.close()
-
 
 def _telemetry(client, messsage):
     if not message['type'] == 'data':
@@ -35,8 +33,10 @@ def _telemetry(client, messsage):
     client.corrector.image_list[number - 1].set_position(position)
 
 def _image(client, message):
-    pass
-
+    number = message['number']
+    image = open(client.corrector.image_folder + \
+    '/current/' + str(number) + '.JPG','rb')
+    client.send(image.encode('base64'))
     # TODO: Handle image requests
 
 _func_dict = {

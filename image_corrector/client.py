@@ -3,7 +3,8 @@ from threading import Thread
 
 from message_handler import handle_message
 
-IP_CORE = '192.168.X.XXX'
+#IP_CORE = '192.168.X.XXX'
+IP_CORE = '127.0.0.1'
 PORT = 25000
 
 
@@ -43,18 +44,17 @@ class Client():
 
     def send(self, *args):
         for arg in args:
-            for string in arg:
-                message = string.encode('utf-8')
-                length = '{:8d}'.format(len(message)).encode('utf-8')
+            message = arg.encode('utf-8')
+            length = '{:8d}'.format(len(message)).encode('utf-8')
 
-                if not self._closed:
-                    self._socket.sendall(length)
-                    self._socket.sendall(message)
+            if not self._closed:
+                self._socket.sendall(length)
+                self._socket.sendall(message)
 
     def close(self):
         self._closed = True
 
-        self._socket.shutdown()
+        self._socket.shutdown(socket.SHUT_RDWR)
         self._socket.close()
 
     @property
