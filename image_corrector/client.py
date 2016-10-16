@@ -55,20 +55,16 @@ class Client():
             return None
 
         length = int(length)
-
-        #message = self._socket.recv(int(length)).decode('utf-8')
-
-        curr_length = 0
         message = ''
 
-        while curr_length < length:
-            message += self._socket.recv(min(1024, length - curr_length)) \
+        while len(message) < length:
+            message += self._socket.recv(min(1024, length - len(message))) \
                 .decode('utf-8')
-
-            curr_length = len(message)
 
         if not message:
             return None
+
+        return message
 
     def close(self):
         self._closed = True

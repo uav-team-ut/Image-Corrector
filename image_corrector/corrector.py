@@ -35,7 +35,7 @@ class Corrector:
 
                 sleep(0.1)
 
-        self._corrector_thread = Thread(target=corrector_thread(self))
+        self._corrector_thread = Thread(target=corrector_thread)
         self._corrector_thread.start()
 
     def _get_new_files(self):
