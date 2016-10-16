@@ -68,8 +68,7 @@ class AerialImage:
         copy2(
             self._corrector.image_folder + '/new/' + file_name,
             self._corrector.image_folder + '/archive/' + \
-            self._corrector.archive_name + \
-            self._file_name[self._file_name.rfind('.'):]
+            self._corrector.archive_name + '/' + self._file_name
         )
 
     @property

@@ -15,7 +15,7 @@ class Corrector:
         self._image_list = []
         self._closed = False
 
-        self._archive_name = datetime.now().strftime('%Y-%m-%d %H.%M.%S')
+        self._archive_name = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
         self._empty_images()
 
         self._client = Client(self)

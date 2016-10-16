@@ -1,7 +1,7 @@
 import base64
 import json
 
-from image import Position
+from .image import Position
 
 def _ping(client, message):
     ping = json.dumps({

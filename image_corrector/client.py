@@ -21,12 +21,7 @@ class Client():
     def _start_thread(self):
         def client_thread():
             while not self._closed:
-                length = self._socket.recv(8).decode('utf-8')
-
-                if not length:
-                    break
-
-                message = self._socket.recv(int(length)).decode('utf-8')
+                message = self.receive()
 
                 if not message:
                     break
@@ -52,6 +47,28 @@ class Client():
             if not self._closed:
                 self._socket.sendall(length)
                 self._socket.sendall(message)
+
+    def receive(self):
+        length = self._socket.recv(8).decode('utf-8')
+
+        if not length:
+            return None
+
+        length = int(length)
+
+        #message = self._socket.recv(int(length)).decode('utf-8')
+
+        curr_length = 0
+        message = ''
+
+        while curr_length < length:
+            message += self._socket.recv(min(1024, length - curr_length)) \
+                .decode('utf-8')
+
+            curr_length = len(message)
+
+        if not message:
+            return None
 
     def close(self):
         self._closed = True
