@@ -1,4 +1,4 @@
-from corrector import Corrector
+from .corrector import Corrector
 
 if __name__ == '__main__':
 

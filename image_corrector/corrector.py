@@ -1,10 +1,10 @@
 from datetime import datetime
+from os import listdir
 from threading import Thread
 from time import sleep
 
-from client import Client
-from image import AerialImage
-from os import listdir
+from .client import Client
+from .image import AerialImage
 
 
 class Corrector:
@@ -23,7 +23,7 @@ class Corrector:
         self._start_thread()
 
     def _start_thread(self):
-        def corrector_thread(self):
+        def corrector_thread():
             while not self._closed:
                 new_files = self._get_new_files()
 
@@ -40,10 +40,7 @@ class Corrector:
 
     def _get_new_files(self):
 
-        return (listdir(self._image_folder+'/new'))
-
-        # TODO: return new files in /new as a list of strings, return
-        # [] if there aren't any
+        return listdir(self.image_folder + '/new')
 
     def _empty_images(self):
 
@@ -59,7 +56,7 @@ class Corrector:
 
     def add_image(self, image):
 
-        self._image_list.append(image)
+        self.image_list.append(image)
 
     @property
     def archive_name(self):

@@ -3,8 +3,9 @@ from math import atan, tan, cos, sin, pi
 import os
 from shutil import copy2
 
-from distance import Distance
-
+# from geo_distance import Distance
+class Distance:
+    pass
 
 class AerialImage:
 

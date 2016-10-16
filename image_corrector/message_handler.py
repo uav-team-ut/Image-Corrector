@@ -43,7 +43,7 @@ _func_dict = {
     'ping': _ping,
     'close': _close,
     'telemetry': _telemetry,
-    'image': _image,
+    'image': _image
 }
 
 

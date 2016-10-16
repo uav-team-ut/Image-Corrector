@@ -1,9 +1,8 @@
 import socket
 from threading import Thread
 
-from message_handler import handle_message
+from .message_handler import handle_message
 
-#IP_CORE = '192.168.X.XXX'
 IP_CORE = '127.0.0.1'
 PORT = 25000
 
