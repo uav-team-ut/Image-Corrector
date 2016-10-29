@@ -3,9 +3,6 @@ from math import atan, tan, cos, sin, pi
 import os
 from shutil import copy2
 
-# from geo_distance import Distance
-class Distance:
-    pass
 
 class AerialImage:
 
@@ -117,10 +114,10 @@ class Position:
         """Return the ground distance of a camera's line of sight.
 
         d_pitch and d_roll are the angles above and to the left of
-        where the center of the camera is pointing. A Distance object
-        is returned with the distance North in y and the distance
-        West in x in meters. None if returned if the camera is
-        pointing to the sky.
+        where the center of the camera is pointing. A list is
+        returned with first the Distance North and second the
+        distance East in meters. None is returned if the camera is
+        pointing at the sky.
         """
         alt = self.alt
         yaw = self.yaw
@@ -134,22 +131,26 @@ class Position:
         x = alt * (tan(roll) / cos(pitch) * cos(yaw) + tan(pitch) * sin(yaw))
         y = alt * (tan(pitch) * cos(yaw) - tan(roll) / cos(pitch) * sin(yaw))
 
-        return Distance(x, y)
+        return [x, y]
 
     def get_corner_distances(self, aspect_ratio, horiz_fov):
         """Return the ground distance of the camera's corners.
 
         aspect_ratio is the ratio of the width to the height of the
         image and horiz_fov is the horizontal field of view of the
-        camera in radians. A list of four Distance objects is
-        returned in the order of top-left, top-right, bottom-left,
-        and bottom-right corners from get_distance(). None is
+        camera in radians. A list of four lists of x and y pairs is
+        returned in the order of top-left, top-right, bottom-right,
+        and bottom-left corners from get_distance(). None is
         returned if the horizon is visible.
         """
         vert_fov = 2 * atan(tan(horiz_fov / 2) / aspect_ratio)
 
-        corners = [self.get_distance(i * vert_fov / 2, j * horiz_fov / 2)
-            for i in (1, -1) for j in (-1, 1)]
+        corners = [
+            self.get_distance(vert_fov / 2, -horiz_fov / 2)
+            self.get_distance(vert_fov / 2, horiz_fov / 2)
+            self.get_distance(-vert_fov / 2, horiz_fov / 2)
+            self.get_distance(-vert_fov / 2, -horiz_fov / 2)
+        ]
 
         if None in corners:
             print('Cannot warp image', self._file_name,
