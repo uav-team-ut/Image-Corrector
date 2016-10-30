@@ -86,7 +86,24 @@ class AerialImage:
         # self._position.get_corner_distances()
         # self._corrector
         # self._file_name
+        image = cv2.imread('lenna.png',cv2.IMREAD_UNCHANGED)
+        rows, cols, ch = image.shape
 
+        x = [int(i[0]) for i in cord]
+        y = [int(i[1]) for i in cord]
+        minX = min(x)
+        maxY = max(y)
+        for i in range(len(cord)):
+            cord[i][0] -= minX
+            cord[i][1] = -(cord[i][1]-maxY)
+        maxX = max([int(i[0]) for i in cord])
+        maxY = max([int(i[1]) for i in cord])
+        k = ceil(sqrt(2*rows*cols/(maxX*maxY)))
+        for i in range(len(cord)):
+            cord[i][0] = k*cord[i][0];
+            cord[i][1] = k*cord[i][1];
+        imageX = k*maxX
+        imageY = k*maxY
         pass
 
 
