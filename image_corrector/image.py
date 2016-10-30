@@ -1,8 +1,10 @@
 import json
-from math import atan, tan, cos, sin, pi
 import os
+from math import atan, tan, cos, sin, pi, sqrt, ceil
 from shutil import copy2
 
+import cv2
+import numpy as np
 
 class AerialImage:
 
@@ -86,7 +88,8 @@ class AerialImage:
         # self._position.get_corner_distances()
         # self._corrector
         # self._file_name
-        image = cv2.imread('lenna.png',cv2.IMREAD_UNCHANGED)
+        cord = self._position.get_corner_distances()
+        image = cv2.imread(self._file_name,cv2.IMREAD_UNCHANGED)
         rows, cols, ch = image.shape
 
         x = [int(i[0]) for i in cord]
@@ -104,8 +107,6 @@ class AerialImage:
             cord[i][1] = k*cord[i][1];
         imageX = k*maxX
         imageY = k*maxY
-        pass
-
 
 class Position:
     """Represents the position of a plane and its camera.
@@ -170,10 +171,10 @@ class Position:
         vert_fov = 2 * atan(tan(horiz_fov / 2) / aspect_ratio)
 
         corners = [
-            self.get_distance(vert_fov / 2, -horiz_fov / 2)
-            self.get_distance(vert_fov / 2, horiz_fov / 2)
-            self.get_distance(-vert_fov / 2, horiz_fov / 2)
-            self.get_distance(-vert_fov / 2, -horiz_fov / 2)
+            self.get_distance(vert_fov / 2, -horiz_fov / 2),
+            self.get_distance(vert_fov / 2, horiz_fov / 2),
+            self.get_distance(-vert_fov / 2, horiz_fov / 2),
+            self.get_distance(-vert_fov / 2, -horiz_fov / 2),
         ]
 
         if None in corners:
