@@ -1,4 +1,5 @@
 from datetime import datetime
+from math import pi
 from os import listdir
 from threading import Thread
 from time import sleep
@@ -8,6 +9,9 @@ from .image import AerialImage
 
 
 class Corrector:
+
+    ASPECT_RATIO = 16 / 9
+    HORIZ_FOV = pi / 6
 
     def __init__(self, image_folder):
 

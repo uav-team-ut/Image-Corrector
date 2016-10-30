@@ -82,6 +82,13 @@ class AerialImage:
         # as _save_original does
         # return False if the horizon was visible.
 
+    def _get_corner_pixels(self):
+        # self._position.get_corner_distances()
+        # self._corrector
+        # self._file_name
+
+        pass
+
 
 class Position:
     """Represents the position of a plane and its camera.
