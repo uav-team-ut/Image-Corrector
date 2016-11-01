@@ -11,7 +11,7 @@ class AerialImage:
     def __init__(self, corrector, file_name):
         self._corrector = corrector
         self._number = corrector.image_count + 1
-        self._file_name = str(self._number) + '.' + \
+        self._file_name = '{:04d}'.format(self._number) + '.' + \
             file_name.split('.')[1]
         self._position = None
 
@@ -82,11 +82,14 @@ class AerialImage:
         as _save_original does return False if the horizon was visible.
         """
 
-        image = cv2.imread(self._file_name,cv2.IMREAD_UNCHANGED)
+        image = cv2.imread(
+            self._corrector.image_folder + '/current/' + self._file_name,
+            cv2.IMREAD_UNCHANGED
+        )
         height, width, channels = image.shape
 
         if channels == 3:
-            alpha = np.ones((rows,cols,1)) * 255
+            alpha = np.ones((height, width, 1)) * 255
             image = np.concatenate((image,alpha), axis=2)
 
         corners = self._get_corner_pixels(image_width, image_height)
@@ -109,9 +112,11 @@ class AerialImage:
             flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_TRANSPARENT
         )
 
-        # FIXME: Save as different file name from the original, this
-        # currently replaces the original.
-        cv2.imwrite(self._file_name, new_image)
+        new_file_name = self._corrector.image_folder + '/current/' + \
+            self._file_name.split('.')[0] + '-2.' + \
+            self._file_name.split('.')[1]
+
+        cv2.imwrite(new_file_name, new_image)
 
         return True
 
