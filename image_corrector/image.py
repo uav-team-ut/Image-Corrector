@@ -100,7 +100,8 @@ class AerialImage:
         rotMatrix = cv2.getPerspectiveTransform(original, corners)
         retVal = cv2.warpPerspective(src=image, dsize=(x,y), M=rotMatrix, \
             flags=cv2.INTER_CUBIC, borderMode = cv2.BORDER_TRANSPARENT)
-        cv2.imwrite("result1.png",retVal)
+        cv2.imwrite(self._file_name,retVal)
+        return True
 
     def _get_corner_pixels(self,cord):
         # self._position.get_corner_distances()

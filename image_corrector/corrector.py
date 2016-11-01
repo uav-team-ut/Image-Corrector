@@ -1,6 +1,6 @@
 from datetime import datetime
 from math import pi
-from os import listdir
+from os import listdir,path,makedirs
 from threading import Thread
 from time import sleep
 
@@ -20,6 +20,10 @@ class Corrector:
         self._closed = False
 
         self._archive_name = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+        newpath = r'C:\Program Files\arbitrary'
+        if not path.exists(self.image_folder+'/archive/'+self.archive_name):
+            makedirs(self.image_folder + '/archive/' + self.archive_name)
+
         self._empty_images()
 
         self._client = Client(self)
