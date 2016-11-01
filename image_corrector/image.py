@@ -108,7 +108,9 @@ class AerialImage:
             src=image, dsize=(new_width, new_height), M=rot_matrix,
             flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_TRANSPARENT
         )
-        
+
+        # FIXME: Save as different file name from the original, this
+        # currently replaces the original.
         cv2.imwrite(self._file_name, new_image)
 
         return True
