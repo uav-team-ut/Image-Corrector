@@ -83,44 +83,63 @@ class AerialImage:
         """
 
         image = cv2.imread(self._file_name,cv2.IMREAD_UNCHANGED)
-        rows, cols, ch = image.shape
-        cord = self._position.get_corner_distances(self._corrector.ASPECT_RATIO,
-         self._corrector.HORIZ_FOV)
-        if (cord == None):
+        height, width, channels = image.shape
+
+        if channels == 3:
+            alpha = np.ones((rows,cols,1)) * 255
+            image = np.concatenate((image,alpha), axis=2)
+
+        corners = self._get_corner_pixels(image_width, image_height)
+
+        if not corners:
             return False
-        x, y = self._get_corner_pixels(cord)
-        original = np.float32(((0,0),(cols-1,0),(cols-1,rows-1),(0,rows-1)))
-        corners = np.float32(((0,0),(x,0),(x,y),(0,y)))
-        #corners = np.float32(((0,0),(cols-1,50),(cols-1,rows-1),(50, rows-1)))
 
-        if ch == 3:
-            A = np.ones((rows,cols,1)) * 255
-            image = np.concatenate((image,A),axis=2)
+        new_width = max[i[0] for i in corners]
+        new_height = max[i[1] for i in corners]
 
-        rotMatrix = cv2.getPerspectiveTransform(original, corners)
-        retVal = cv2.warpPerspective(src=image, dsize=(x,y), M=rotMatrix, \
-            flags=cv2.INTER_CUBIC, borderMode = cv2.BORDER_TRANSPARENT)
-        cv2.imwrite(self._file_name,retVal)
+        original_corners = np.float32(
+            ((0, 0), (width - 1, 0), (width - 1, height - 1), (0 , height - 1))
+        )
+        new_corners = np.float32(corners)
+
+        rot_matrix = cv2.getPerspectiveTransform(original_corners, new_corners)
+
+        new_image = cv2.warpPerspective(
+            src=image, dsize=(new_width, new_height), M=rot_matrix,
+            flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_TRANSPARENT
+        )
+        
+        cv2.imwrite(self._file_name, new_image)
+
         return True
 
-    def _get_corner_pixels(self,cord):
-        # self._position.get_corner_distances()
-        # self._corrector
-        # self._file_name
-        x = [int(i[0]) for i in cord]
-        y = [int(i[1]) for i in cord]
-        minX = min(x)
-        maxY = max(y)
-        for i in range(len(cord)):
-            cord[i][0] -= minX
-            cord[i][1] = -(cord[i][1]-maxY)
-        maxX = max([int(i[0]) for i in cord])
-        maxY = max([int(i[1]) for i in cord])
-        k = ceil(sqrt(2*rows*cols/(maxX*maxY)))
-        for i in range(len(cord)):
-            cord[i][0] = k*cord[i][0];
-            cord[i][1] = k*cord[i][1];
-        return (k*maxX, k*maxY)
+    def _get_corner_pixels(self, image_width, image_height):
+
+        corners = self._position.get_corner_distances(
+            self._corrector.ASPECT_RATIO, self._corrector.HORIZ_FOV
+        )
+
+        if not corners:
+            return None
+
+        x = [int(i[0]) for i in corners]
+        y = [int(i[1]) for i in corners]
+
+        min_x = min(x)
+        max_y = max(y)
+
+        x = [i - min_x for i in x]
+        y = [max_y - i for i in y]
+
+        max_x = max(x)
+        max_y = max(y)
+
+        k = ceil(sqrt(2 * image_width * image_height / (max_x * max_y)))
+
+        x = [i * k for i in x]
+        y = [i * k for i in y]
+
+        return [[x[i], y[i]] for i in range(len(corners))]
 
 class Position:
     """Represents the position of a plane and its camera.
@@ -192,8 +211,7 @@ class Position:
         ]
 
         if None in corners:
-            print('Cannot warp image', self._file_name,
-                'since horizon is visible.')
+            print('Cannot warp image since horizon is visible.')
 
             return None
 
