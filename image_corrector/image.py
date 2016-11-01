@@ -75,23 +75,37 @@ class AerialImage:
         return self._position is not None
 
     def _warp(self):
+        """
+        warp the image using SimpleCV / OpenCV
+        leave the corners of the warped image transparent
+        save the warped image in /current/ and in /archive/ just
+        as _save_original does return False if the horizon was visible.
+        """
 
-        pass
+        image = cv2.imread(self._file_name,cv2.IMREAD_UNCHANGED)
+        rows, cols, ch = image.shape
+        cord = self._position.get_corner_distances(self._corrector.ASPECT_RATIO,
+         self._corrector.HORIZ_FOV)
+        if (cord == None):
+            return False
+        x, y = self._get_corner_pixels(cord)
+        original = np.float32(((0,0),(cols-1,0),(cols-1,rows-1),(0,rows-1)))
+        corners = np.float32(((0,0),(x,0),(x,y),(0,y)))
+        #corners = np.float32(((0,0),(cols-1,50),(cols-1,rows-1),(50, rows-1)))
 
-        # warp the image using SimpleCV / OpenCV
-        # leave the corners of the warped image transparent
-        # save the warped image in /current/ and in /archive/ just
-        # as _save_original does
-        # return False if the horizon was visible.
+        if ch == 3:
+            A = np.ones((rows,cols,1)) * 255
+            image = np.concatenate((image,A),axis=2)
 
-    def _get_corner_pixels(self):
+        rotMatrix = cv2.getPerspectiveTransform(original, corners)
+        retVal = cv2.warpPerspective(src=image, dsize=(x,y), M=rotMatrix, \
+            flags=cv2.INTER_CUBIC, borderMode = cv2.BORDER_TRANSPARENT)
+        cv2.imwrite("result1.png",retVal)
+
+    def _get_corner_pixels(self,cord):
         # self._position.get_corner_distances()
         # self._corrector
         # self._file_name
-        cord = self._position.get_corner_distances()
-        image = cv2.imread(self._file_name,cv2.IMREAD_UNCHANGED)
-        rows, cols, ch = image.shape
-
         x = [int(i[0]) for i in cord]
         y = [int(i[1]) for i in cord]
         minX = min(x)
@@ -105,8 +119,7 @@ class AerialImage:
         for i in range(len(cord)):
             cord[i][0] = k*cord[i][0];
             cord[i][1] = k*cord[i][1];
-        imageX = k*maxX
-        imageY = k*maxY
+        return (k*maxX, k*maxY)
 
 class Position:
     """Represents the position of a plane and its camera.
