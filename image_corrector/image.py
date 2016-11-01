@@ -1,9 +1,11 @@
+import base64
 import json
 import os
 from math import atan, tan, cos, sin, pi, sqrt, ceil
 from shutil import copy2
 
 import cv2
+from geo_distance import Distance, Location
 import numpy as np
 
 class AerialImage:
@@ -11,7 +13,7 @@ class AerialImage:
     def __init__(self, corrector, file_name):
         self._corrector = corrector
         self._number = corrector.image_count + 1
-        self._file_name = '{:04d}'.format(self._number) + '.' + \
+        self._file_name = '{:04d}'.format(self._number) + '-1.' + \
             file_name.split('.')[1]
         self._position = None
 
@@ -38,6 +40,75 @@ class AerialImage:
     @property
     def has_position(self):
         return self._position is not None
+
+    def to_json(warped=False, scale=1):
+        file_name = self._corrector.image_folder + '/current/'
+
+        if not warped:
+            file_name += self._file_name
+        else:
+            file_name +=  self._file_name.split('-')[0] + '-2.' + \
+                self._file_name.split('.')[1]
+
+        if scale - 1:
+            image = cv2.imread(file_name, cv2.IMREAD_UNCHANGED)
+
+            inter = cv2.INTER_AREA if scale < 1 else cv2.INTER_CUBIC
+
+            temp_image = cv2.resize(
+                image, (0,0), fx=scale, fy=scale, interpolation=inter
+            )
+
+            file_name = self._corrector.image_folder + '/current/' + \
+                self._file_name.split('-')[0] + '-3.' + \
+                self._file_name.split('.')[1]
+
+            cv2.imwrite(file_name, temp_image)
+
+        string = ''
+
+        lat = self._position.lat
+        lon = self._position.lon
+
+        width = None
+        height = None
+
+        if warped:
+            corners = self._position.get_corner_distances(
+                self._corrector.ASPECT_RATIO, self._corrector.HORIZ_FOV
+            )
+
+            x = [i[0] for i in corners]
+            y = [i[1] for i in corners]
+
+            width = max(x) - min(x)
+            height = max(y) - min(y)
+
+            c_x = (max(x) + min(x)) / 2
+            c_y = (max(y) + min(y)) / 2
+
+            loc = Location(lat, lon)
+            c_loc = loc.get_location(Distance(c_x, c_y))
+
+            lat = c_loc.lat
+            lon = c_loc.lon
+
+        with open(file_name) as image:
+            string = base64.b64encode(image.read()).decode('utf-8')
+
+        return json.dumps({
+            'type': 'image',
+            'format': 'warped' if warped else 'original',
+            'location': {
+                'lat': lat,
+                'lon': lon
+            },
+            'dimensions': {
+                'width': width
+                'height': height
+            } if warped else None,
+            'string': string
+        })
 
     def _warp(self):
         """
@@ -77,11 +148,16 @@ class AerialImage:
             flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_TRANSPARENT
         )
 
-        new_file_name = self._corrector.image_folder + '/current/' + \
-            self._file_name.split('.')[0] + '-2.' + \
+        new_file_name_1 = self._corrector.image_folder + '/current/' + \
+            self._file_name.split('-')[0] + '-2.' + \
             self._file_name.split('.')[1]
 
-        cv2.imwrite(new_file_name, new_image)
+        new_file_name_2 = self._corrector.image_folder + '/archive/' + \
+            self._file_name.split('-')[0] + '-2.' + \
+            self._file_name.split('.')[1]
+
+        cv2.imwrite(new_file_name_1, new_image)
+        cv2.imwrite(new_file_name_2, new_image)
 
         return True
 
@@ -179,7 +255,7 @@ class Position:
             self.get_distance(vert_fov / 2, -horiz_fov / 2),
             self.get_distance(vert_fov / 2, horiz_fov / 2),
             self.get_distance(-vert_fov / 2, horiz_fov / 2),
-            self.get_distance(-vert_fov / 2, -horiz_fov / 2),
+            self.get_distance(-vert_fov / 2, -horiz_fov / 2)
         ]
 
         if None in corners:
