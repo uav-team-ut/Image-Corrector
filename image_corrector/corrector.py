@@ -39,6 +39,31 @@ class Corrector:
                     image = AerialImage(self, new_file)
                     self.add_image(image)
 
+                    time = os.path.getmtime(
+                        self.image_folder + '/new/' + new_file
+                    )
+
+                    alert = json.dumps({
+                        'type': 'image',
+                        'message': {
+                            'type': 'alert',
+                            'format': 'original',
+                            'status': 'available'
+                        }
+                    })
+
+                    request = json.dumps({
+                        'type': 'telemetry',
+                        'message': {
+                            'type': 'request',
+                            'time': time,
+                            'image-number': self.image_count + 1
+                        }
+                    })
+
+                    self._client.send(alert)
+                    self._client.send(request)
+
                     self._empty_new()
 
                 sleep(0.1)
@@ -71,10 +96,6 @@ class Corrector:
         return self._archive_name
 
     @property
-    def client(self):
-        return self._client
-
-    @property
     def image_folder(self):
         return self._image_folder
 
@@ -87,6 +108,5 @@ class Corrector:
         return len(self.image_list)
 
     def close(self):
-
         self._closed = True
         self._client.close()

@@ -17,47 +17,12 @@ class AerialImage:
 
         self._save_original(file_name)
 
-        time = os.path.getmtime(
-            self._corrector.image_folder + '/new/' + file_name
-        )
         os.remove(self._corrector.image_folder + '/new/' + file_name)
-
-        alert = json.dumps({
-            'type': 'image',
-            'message': {
-                'type': 'alert',
-                'format': 'original',
-                'status': 'available'
-            }
-        })
-
-        request = json.dumps({
-            'type': 'telemetry',
-            'message': {
-                'type': 'request',
-                'time': time,
-                'image-number': self._number
-            }
-        })
-
-        self._corrector.client.send(alert)
-        self._corrector.client.send(request)
 
     def set_position(self, position):
         self._position = position
 
-        did_warp = self._warp()
-
-        alert = json.dumps({
-            'type': 'image',
-            'message': {
-                'type': 'alert',
-                'format': 'warped',
-                'status': 'available' if did_warp else 'unavailable'
-            }
-        })
-
-        self._corrector.client.send(alert)
+        return self._warp()
 
     def _save_original(self, file_name):
         copy2(

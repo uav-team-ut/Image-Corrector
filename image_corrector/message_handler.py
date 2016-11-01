@@ -31,7 +31,18 @@ def _telemetry(client, messsage):
 
     position = Position(lat, lon, alt, yaw, pitch, roll, cam_pitch, cam_roll)
 
-    client.corrector.image_list[number - 1].set_position(position)
+    did_warp = client.corrector.image_list[number - 1].set_position(position)
+
+    alert = json.dumps({
+        'type': 'image',
+        'message': {
+            'type': 'alert',
+            'format': 'warped',
+            'status': 'available' if did_warp else 'unavailable'
+        }
+    })
+
+    self._corrector.client.send(alert)
 
 def _image(client, message):
     number = message['number']
