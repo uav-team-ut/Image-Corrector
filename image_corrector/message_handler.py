@@ -34,8 +34,6 @@ def _ping(client, message):
 
 @on_message('close')
 def _close(client, message):
-    print(message)
-
     client.close()
 
 @on_message('telemetry')
