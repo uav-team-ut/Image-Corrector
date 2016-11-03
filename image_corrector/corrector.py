@@ -71,7 +71,7 @@ class Corrector:
                         'message': {
                             'type': 'request',
                             'time': time,
-                            'image-number': self.image_count + 1
+                            'image-number': self.image_count
                         }
                     })
 
@@ -87,13 +87,20 @@ class Corrector:
 
     def _get_new_files(self):
 
-        return os.listdir(self.image_folder + '/new')
+        files = []
+
+        for file in os.listdir(self.image_folder + '/new'):
+            if file.endswith('.png'):
+                files.append(file)
+
+        return files
 
     def _empty_images(self):
 
         pass
 
         # TODO: empty the /current folder
+        # TODO: get rid of empty archive files
 
     def _empty_new(self):
 
@@ -102,7 +109,6 @@ class Corrector:
         # TODO: empty the /new folder
 
     def add_image(self, image):
-
         self.image_list.append(image)
 
     @property
