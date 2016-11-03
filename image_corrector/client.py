@@ -26,7 +26,10 @@ class Client():
                 if not message:
                     break
 
-                handle_message(self, message)
+                message_thread = Thread(
+                    target=handle_message, args=(self, message)
+                )
+                message_thread.start()
 
             if not self._closed:
                 print('Connection lost with core... closing.')
@@ -69,8 +72,14 @@ class Client():
     def close(self):
         self._closed = True
 
-        self._socket.shutdown(socket.SHUT_RDWR)
-        self._socket.close()
+        try:
+            self._socket.shutdown(socket.SHUT_RDWR)
+
+        except OSError as e:
+            pass
+            
+        finally:
+            self._socket.close()
 
     @property
     def corrector(self):

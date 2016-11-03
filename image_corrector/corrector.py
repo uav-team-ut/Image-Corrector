@@ -1,6 +1,7 @@
 from datetime import datetime
+import json
 from math import pi
-from os import listdir,path,makedirs
+import os
 from threading import Thread
 from time import sleep
 
@@ -13,7 +14,20 @@ class Corrector:
     ASPECT_RATIO = 16 / 9
     HORIZ_FOV = pi / 6
 
-    def __init__(self, image_folder):
+    def __init__(self, image_folder=None):
+        if not image_folder:
+            image_folder = os.path.expanduser('~') + '/Image Corrector'
+
+        if not os.path.exists(image_folder):
+            os.makedirs(image_folder)
+
+            print('Created new file \'{}\'.'.format(image_folder))
+
+        if not os.path.exists(image_folder + '/new'):
+            os.makedirs(image_folder + '/new')
+
+        if not os.path.exists(image_folder + '/current'):
+            os.makedirs(image_folder + '/current')
 
         self._image_folder = image_folder
         self._image_list = []
@@ -21,8 +35,8 @@ class Corrector:
 
         self._archive_name = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
         newpath = r'C:\Program Files\arbitrary'
-        if not path.exists(self.image_folder+'/archive/'+self.archive_name):
-            makedirs(self.image_folder + '/archive/' + self.archive_name)
+        if not os.path.exists(self.image_folder+'/archive/'+self.archive_name):
+            os.makedirs(self.image_folder + '/archive/' + self.archive_name)
 
         self._empty_images()
 
@@ -36,12 +50,12 @@ class Corrector:
                 new_files = self._get_new_files()
 
                 for new_file in new_files:
-                    image = AerialImage(self, new_file)
-                    self.add_image(image)
-
                     time = os.path.getmtime(
                         self.image_folder + '/new/' + new_file
                     )
+
+                    image = AerialImage(self, new_file)
+                    self.add_image(image)
 
                     alert = json.dumps({
                         'type': 'image',
@@ -73,7 +87,7 @@ class Corrector:
 
     def _get_new_files(self):
 
-        return listdir(self.image_folder + '/new')
+        return os.listdir(self.image_folder + '/new')
 
     def _empty_images(self):
 

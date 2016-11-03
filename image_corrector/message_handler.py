@@ -6,7 +6,7 @@ from .image import Position
 def _ping(client, message):
     ping = json.dumps({
         'type': 'ping',
-        'message': 'Ping received'
+        'message': None
     })
 
     client.send(ping)

@@ -104,7 +104,7 @@ class AerialImage:
                 'lon': lon
             },
             'dimensions': {
-                'width': width
+                'width': width,
                 'height': height
             } if warped else None,
             'string': string
@@ -133,8 +133,8 @@ class AerialImage:
         if not corners:
             return False
 
-        new_width = max[i[0] for i in corners]
-        new_height = max[i[1] for i in corners]
+        new_width = max(i[0] for i in corners)
+        new_height = max(i[1] for i in corners)
 
         original_corners = np.float32(
             ((0, 0), (width - 1, 0), (width - 1, height - 1), (0 , height - 1))
