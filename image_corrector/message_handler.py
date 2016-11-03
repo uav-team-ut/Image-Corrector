@@ -3,6 +3,27 @@ import json
 
 from .image import Position
 
+_func_dict = {}
+
+def on_message(message):
+    def func_decorator(func):
+        _func_dict[message] = func
+
+        return func
+    return func_decorator
+
+def handle_message(client, string):
+    message = json.loads(string)
+
+    message_type = message['type']
+    message_content = message['message']
+
+    if not message_type in _func_dict:
+        raise Exception('Unhandled message type:', message_type)
+
+    _func_dict[message_type](client, message_content)
+
+@on_message('ping')
 def _ping(client, message):
     ping = json.dumps({
         'type': 'ping',
@@ -11,9 +32,13 @@ def _ping(client, message):
 
     client.send(ping)
 
+@on_message('close')
 def _close(client, message):
+    print(message)
+
     client.close()
 
+@on_message('telemetry')
 def _telemetry(client, messsage):
     if not message['type'] == 'data':
         raise Exception('Unhandled telemetry message type:', message['type'])
@@ -44,6 +69,7 @@ def _telemetry(client, messsage):
 
     self._corrector.client.send(alert)
 
+@on_message('image')
 def _image(client, message):
     number = message['number']
     with open(client.corrector.image_folder + \
@@ -51,22 +77,3 @@ def _image(client, message):
         out = base64.b64encode(image.read()).decode('utf-8')
         client.send(json.dumps({"image" : out}))
     # TODO: Handle image requests
-
-_func_dict = {
-    'ping': _ping,
-    'close': _close,
-    'telemetry': _telemetry,
-    'image': _image
-}
-
-
-def handle_message(client, string):
-    message = json.loads(string)
-
-    message_type = message['type']
-    message_content = message['message']
-
-    if not message_type in _func_dict:
-        raise Exception('Unhandled message type:', message_type)
-
-    _func_dict[message_type](client, message_content)
