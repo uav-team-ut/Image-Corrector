@@ -98,6 +98,7 @@ class AerialImage:
 
         return json.dumps({
             'type': 'image',
+            'number': self._number,
             'format': 'warped' if warped else 'original',
             'location': {
                 'lat': lat,

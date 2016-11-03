@@ -19,7 +19,7 @@ def handle_message(client, string):
     message_content = message['message']
 
     if not message_type in _func_dict:
-        raise Exception('Unhandled message type:', message_type)
+        raise Exception('Unhandled message type: ' + message_type)
 
     _func_dict[message_type](client, message_content)
 
@@ -39,7 +39,7 @@ def _close(client, message):
 @on_message('telemetry')
 def _telemetry(client, messsage):
     if not message['type'] == 'data':
-        raise Exception('Unhandled telemetry message type:', message['type'])
+        raise Exception('Unhandled telemetry message type: ' + message['type'])
 
     number = message['image-number']
 
@@ -65,13 +65,27 @@ def _telemetry(client, messsage):
         }
     })
 
-    self._corrector.client.send(alert)
+    client.send(alert)
 
 @on_message('image')
 def _image(client, message):
+    if not message['type'] == 'request':
+        raise Exception('Unhandled telemetry message type: ' + message['type'])
+
     number = message['number']
-    with open(client.corrector.image_folder + \
-    '/current/' + str(number) + '.JPG','rb') as image:
-        out = base64.b64encode(image.read()).decode('utf-8')
-        client.send(json.dumps({"image" : out}))
-    # TODO: Handle image requests
+    format = message['format']
+    scale = message['scale']
+
+    if not format in ('original', 'warped'):
+        raise Exception('Unhandled image type: ' + message['type'])
+
+    json_str = client.corrector.image_list[number - 1].to_json(
+        False if format == 'original' else True, scale
+    )
+
+    image = json.dumps({
+        'type': 'image',
+        'message': json_str
+    })
+
+    client.send(image)
