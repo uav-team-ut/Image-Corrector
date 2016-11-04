@@ -85,7 +85,7 @@ def _image(client, message):
 
     image = json.dumps({
         'type': 'image',
-        'message': json_str
+        'message': json.loads(json_str)
     })
 
     client.send(image)

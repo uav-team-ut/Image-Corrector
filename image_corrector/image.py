@@ -41,7 +41,7 @@ class AerialImage:
     def has_position(self):
         return self._position is not None
 
-    def to_json(warped=False, scale=1):
+    def to_json(self, warped=False, scale=1):
         file_name = self._corrector.image_folder + '/current/'
 
         if not warped:
@@ -67,8 +67,12 @@ class AerialImage:
 
         string = ''
 
-        lat = self._position.lat
-        lon = self._position.lon
+        lat = None
+        lon = None
+
+        if self.has_position:
+            lat = self._position.lat
+            lon = self._position.lon
 
         width = None
         height = None
@@ -93,7 +97,13 @@ class AerialImage:
             lat = c_loc.lat
             lon = c_loc.lon
 
-        with open(file_name) as image:
+        with open(file_name, 'rb') as image:
+            # thing = image.read()
+            #
+            # string1 = base64.b64encode(image.read())
+            #
+            # print(string1)
+
             string = base64.b64encode(image.read()).decode('utf-8')
 
         return json.dumps({

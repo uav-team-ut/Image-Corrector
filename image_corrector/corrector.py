@@ -62,6 +62,7 @@ class Corrector:
                         'message': {
                             'type': 'alert',
                             'format': 'original',
+                            'number': self.image_count,
                             'status': 'available'
                         }
                     })
@@ -71,7 +72,7 @@ class Corrector:
                         'message': {
                             'type': 'request',
                             'time': time,
-                            'image-number': self.image_count
+                            'number': self.image_count
                         }
                     })
 
