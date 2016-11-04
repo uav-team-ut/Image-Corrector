@@ -37,11 +37,11 @@ def _close(client, message):
     client.close()
 
 @on_message('telemetry')
-def _telemetry(client, messsage):
+def _telemetry(client, message):
     if not message['type'] == 'data':
         raise Exception('Unhandled telemetry message type: ' + message['type'])
 
-    number = message['image-number']
+    number = message['number']
 
     lat = message['lat']
     lon = message['lon']

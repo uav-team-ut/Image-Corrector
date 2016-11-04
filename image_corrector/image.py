@@ -139,7 +139,7 @@ class AerialImage:
             alpha = np.ones((height, width, 1)) * 255
             image = np.concatenate((image,alpha), axis=2)
 
-        corners = self._get_corner_pixels(image_width, image_height)
+        corners = self._get_corner_pixels(width, height)
 
         if not corners:
             return False
@@ -164,6 +164,7 @@ class AerialImage:
             self._file_name.split('.')[1]
 
         new_file_name_2 = self._corrector.image_folder + '/archive/' + \
+            self._corrector.archive_name + '/' + \
             self._file_name.split('-')[0] + '-2.' + \
             self._file_name.split('.')[1]
 

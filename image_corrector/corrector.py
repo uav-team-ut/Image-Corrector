@@ -16,7 +16,7 @@ class Corrector:
 
     def __init__(self, image_folder=None):
         if not image_folder:
-            image_folder = os.path.expanduser('~') + '/Image Corrector'
+            image_folder = os.path.expanduser('~') + '/Image Corrector Images'
 
         if not os.path.exists(image_folder):
             os.makedirs(image_folder)
@@ -34,8 +34,9 @@ class Corrector:
         self._closed = False
 
         self._archive_name = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-        newpath = r'C:\Program Files\arbitrary'
-        if not os.path.exists(self.image_folder+'/archive/'+self.archive_name):
+
+        if not os.path.exists(self.image_folder + '/archive/' + \
+                self.archive_name):
             os.makedirs(self.image_folder + '/archive/' + self.archive_name)
 
         self._empty_images()
