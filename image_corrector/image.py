@@ -128,11 +128,15 @@ class AerialImage:
         save the warped image in /current/ and in /archive/ just
         as _save_original does return False if the horizon was visible.
         """
-
+        
         image = cv2.imread(
             self._corrector.image_folder + '/current/' + self._file_name,
             cv2.IMREAD_UNCHANGED
         )
+
+        if image is None:
+            raise FileNotFoundError()
+
         height, width, channels = image.shape
 
         if channels == 3:
