@@ -70,7 +70,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             thing = json.loads(data.decode('utf-8'))
 
-            if thing['type'] == 'image' and thing['message']['type'] == 'alert':
+            if thing['type'] == 'telemetry' and thing['message']['type'] == 'request':
                 print('\n\n\n\nGOT NOTIFIED OF IMAGE\n\n')
 
                 message = TELEM.encode('utf-8')
