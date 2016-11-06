@@ -33,13 +33,13 @@ class Corrector:
         self._image_list = []
         self._closed = False
 
+        self._empty_images()
+
         self._archive_name = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
 
         if not os.path.exists(self.image_folder + '/archive/' + \
                 self.archive_name):
             os.makedirs(self.image_folder + '/archive/' + self.archive_name)
-
-        self._empty_images()
 
         self._client = Client(self)
 
@@ -80,8 +80,6 @@ class Corrector:
                     self._client.send(alert)
                     self._client.send(request)
 
-                    self._empty_new()
-
                 sleep(0.1)
 
         self._corrector_thread = Thread(target=corrector_thread)
@@ -99,16 +97,16 @@ class Corrector:
 
     def _empty_images(self):
 
-        pass
+        # Delete /current/*
+        for f in os.listdir(self.image_folder + '/current/'):
+            os.remove(self.image_folder + '/current/' + f)
 
-        # TODO: empty the /current folder
-        # TODO: get rid of empty archive files
-
-    def _empty_new(self):
-
-        pass
-
-        # TODO: empty the /new folder
+        # Remove empty dirs in archive (LBYL style)
+        for f in os.listdir(self.image_folder + '/archive/'):
+            folder = self.image_folder + '/archive/' + f
+            # If folder is empty, remove. Leave files alone.
+            if os.path.isdir(folder) and not os.listdir(folder):
+                os.rmdir(folder)
 
     def add_image(self, image):
         self.image_list.append(image)
