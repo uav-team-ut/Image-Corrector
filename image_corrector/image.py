@@ -98,16 +98,10 @@ class AerialImage:
             lon = c_loc.lon
 
         with open(file_name, 'rb') as image:
-            # thing = image.read()
-            #
-            # string1 = base64.b64encode(image.read())
-            #
-            # print(string1)
-
             string = base64.b64encode(image.read()).decode('utf-8')
 
         return json.dumps({
-            'type': 'image',
+            'type': 'data',
             'number': self._number,
             'format': 'warped' if warped else 'original',
             'location': {
@@ -128,7 +122,7 @@ class AerialImage:
         save the warped image in /current/ and in /archive/ just
         as _save_original does return False if the horizon was visible.
         """
-        
+
         image = cv2.imread(
             self._corrector.image_folder + '/current/' + self._file_name,
             cv2.IMREAD_UNCHANGED

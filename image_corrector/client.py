@@ -20,6 +20,16 @@ class Client():
 
     def _start_thread(self):
         def client_thread():
+
+            time = json.dumps({
+                'type': 'time',
+                'message': {
+                    'type': 'request'
+                }
+            })
+
+            self.send(time)
+
             while not self._closed:
                 message = self.receive()
 
@@ -77,7 +87,7 @@ class Client():
 
         except OSError as e:
             pass
-            
+
         finally:
             self._socket.close()
 

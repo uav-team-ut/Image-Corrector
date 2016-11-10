@@ -3,7 +3,7 @@ import json
 from math import pi
 import os
 from threading import Thread
-from time import sleep
+from time import sleep, time
 
 from .client import Client
 from .image import AerialImage
@@ -29,9 +29,14 @@ class Corrector:
         if not os.path.exists(image_folder + '/current'):
             os.makedirs(image_folder + '/current')
 
+        if not os.path.exists(image_folder + '/archive'):
+            os.makedirs(image_folder + '/archive')
+
         self._image_folder = image_folder
         self._image_list = []
         self._closed = False
+
+        self._d_time = 0
 
         self._empty_images()
 
@@ -51,7 +56,7 @@ class Corrector:
                 new_files = self._get_new_files()
 
                 for new_file in new_files:
-                    time = os.path.getmtime(
+                    time = self._d_time + os.path.getmtime(
                         self.image_folder + '/new/' + new_file
                     )
 
@@ -71,7 +76,7 @@ class Corrector:
                     request = json.dumps({
                         'type': 'telemetry',
                         'message': {
-                            'type': 'request',
+                            'type': 'image-request',
                             'time': time,
                             'number': self.image_count
                         }
@@ -110,6 +115,9 @@ class Corrector:
 
     def add_image(self, image):
         self.image_list.append(image)
+
+    def set_time(self, time):
+        self._d_time = time - time()
 
     @property
     def archive_name(self):

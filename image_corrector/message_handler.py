@@ -36,9 +36,16 @@ def _ping(client, message):
 def _close(client, message):
     client.close()
 
+@on_message('time')
+def _time(client, message):
+    if not message['type'] == 'data':
+        raise Exception('Unhandled time message type: ' + message['type'])
+
+    client.corrector.set_time(message['time'])
+
 @on_message('telemetry')
 def _telemetry(client, message):
-    if not message['type'] == 'data':
+    if not message['type'] == 'image-data':
         raise Exception('Unhandled telemetry message type: ' + message['type'])
 
     number = message['number']
@@ -61,6 +68,7 @@ def _telemetry(client, message):
         'message': {
             'type': 'alert',
             'format': 'warped',
+            'number': number,
             'status': 'available' if did_warp else 'unavailable'
         }
     })
