@@ -5,8 +5,10 @@ from math import atan, tan, cos, sin, pi, sqrt, ceil
 from shutil import copy2
 
 import cv2
-from geo_distance import Distance, Location
 import numpy as np
+
+from geo_distance import Distance, Location
+
 
 class AerialImage:
 
@@ -198,6 +200,7 @@ class AerialImage:
         y = [i * k for i in y]
 
         return [[x[i], y[i]] for i in range(len(corners))]
+
 
 class Position:
     """Represents the position of a plane and its camera.

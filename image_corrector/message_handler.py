@@ -5,12 +5,14 @@ from .image import Position
 
 _func_dict = {}
 
+
 def on_message(message):
     def func_decorator(func):
         _func_dict[message] = func
 
         return func
     return func_decorator
+
 
 def handle_message(client, string):
     message = json.loads(string)
@@ -23,6 +25,7 @@ def handle_message(client, string):
 
     _func_dict[message_type](client, message_content)
 
+
 @on_message('ping')
 def _ping(client, message):
     ping = json.dumps({
@@ -32,9 +35,11 @@ def _ping(client, message):
 
     client.send(ping)
 
+
 @on_message('close')
 def _close(client, message):
     client.close()
+
 
 @on_message('time')
 def _time(client, message):
@@ -42,6 +47,7 @@ def _time(client, message):
         raise Exception('Unhandled time message type: ' + message['type'])
 
     client.corrector.set_time(message['time'])
+
 
 @on_message('telemetry')
 def _telemetry(client, message):
@@ -74,6 +80,7 @@ def _telemetry(client, message):
     })
 
     client.send(alert)
+
 
 @on_message('image')
 def _image(client, message):
