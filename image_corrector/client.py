@@ -1,5 +1,7 @@
 import socket
+import json
 from threading import Thread
+from time import sleep
 
 from .message_handler import handle_message
 
@@ -13,8 +15,23 @@ class Client():
         self._closed = False
         self._corrector = corrector
 
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.connect((IP_CORE, PORT))
+        connected = False
+
+        while not connected:
+            try:
+                self._socket = socket.socket(socket.AF_INET,
+                    socket.SOCK_STREAM)
+                self._socket.connect((IP_CORE, PORT))
+
+            except (ConnectionRefusedError, OSError):
+                print('Could not connect to core... trying again.')
+
+                sleep(5)
+
+            else:
+                print('Connected to core.')
+
+                connected = True
 
         self._start_thread()
 
@@ -85,7 +102,7 @@ class Client():
         try:
             self._socket.shutdown(socket.SHUT_RDWR)
 
-        except OSError as e:
+        except OSError:
             pass
 
         finally:

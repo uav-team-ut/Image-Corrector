@@ -5,9 +5,8 @@ from math import atan, tan, cos, sin, pi, sqrt, ceil
 from shutil import copy2
 
 import cv2
-import numpy as np
-
 from geo_distance import Distance, Location
+import numpy as np
 
 
 class AerialImage:
