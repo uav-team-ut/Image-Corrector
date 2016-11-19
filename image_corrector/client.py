@@ -23,7 +23,7 @@ class Client():
                     socket.SOCK_STREAM)
                 self._socket.connect((IP_CORE, PORT))
 
-            except (ConnectionRefusedError, OSError):
+            except ConnectionRefusedError:
                 print('Could not connect to core... trying again.')
 
                 sleep(5)

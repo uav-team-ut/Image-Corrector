@@ -26,6 +26,18 @@ def handle_message(client, string):
     _func_dict[message_type](client, message_content)
 
 
+@on_message('connect')
+def _connect(client, message):
+    connect = json.dumps({
+        'type': 'connect',
+        'message': {
+            'type': 'data',
+            'program': 'image-corrector'
+        }
+    })
+
+    client.send(connect)
+
 @on_message('ping')
 def _ping(client, message):
     ping = json.dumps({
