@@ -5,11 +5,11 @@ from time import sleep
 
 from .message_handler import handle_message
 
-IP_CORE = '127.0.0.1'
-PORT = 25000
+IP_FLIGHT_VIEW = '127.0.0.1'
+PORT = 25001
 
 
-class Client():
+class Client:
 
     def __init__(self, corrector):
         self._closed = False
@@ -21,15 +21,15 @@ class Client():
             try:
                 self._socket = socket.socket(socket.AF_INET,
                     socket.SOCK_STREAM)
-                self._socket.connect((IP_CORE, PORT))
+                self._socket.connect((IP_FLIGHT_VIEW, PORT))
 
             except ConnectionRefusedError:
-                print('Could not connect to core... trying again.')
+                print('Could not connect to flight-view... trying again.')
 
                 sleep(5)
 
             else:
-                print('Connected to core.')
+                print('Connected to flight-view.')
 
                 connected = True
 
@@ -59,7 +59,7 @@ class Client():
                 message_thread.start()
 
             if not self._closed:
-                print('Connection lost with core... closing.')
+                print('Connection lost with flight-view... closing.')
 
                 self._corrector.close()
 
