@@ -116,8 +116,8 @@ class Corrector:
     def add_image(self, image):
         self.image_list.append(image)
 
-    def set_time(self, time):
-        self._d_time = time - time()
+    def set_time(self, new_time):
+        self._d_time = new_time - time()
 
     @property
     def archive_name(self):
