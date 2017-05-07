@@ -14,7 +14,7 @@ class AerialImage:
     def __init__(self, corrector, file_name):
         self._corrector = corrector
         self._number = corrector.image_count + 1
-        self._file_name = '{:04d}'.format(self._number) + '-1.' + \
+        self._file_name = '{:06d}'.format(self._number) + '-1.' + \
             file_name.split('.')[1]
         self._position = None
 
@@ -101,20 +101,22 @@ class AerialImage:
         with open(file_name, 'rb') as image:
             string = base64.b64encode(image.read()).decode('utf-8')
 
-        return json.dumps({
-            'type': 'data',
-            'number': self._number,
-            'format': 'warped' if warped else 'original',
-            'location': {
+        if warped:
+            return {
+                'data_warped': string,
                 'lat': lat,
-                'lon': lon
-            },
-            'dimensions': {
+                'lon': lon,
                 'width': width,
-                'height': height
-            } if warped else None,
-            'string': string
-        })
+                'height': height,
+                'processed': False
+            }
+        else:
+            return {
+                'data_original': string,
+                'lat': lat,
+                'lon': lon,
+                'processed': False
+            }
 
     def _warp(self):
         """
@@ -132,7 +134,11 @@ class AerialImage:
         if image is None:
             raise FileNotFoundError()
 
-        height, width, channels = image.shape
+        height, width = image.shape[:2]
+        channels = 4
+
+        if len(image.shape) > 2:
+            channels = image.shape[2]
 
         if channels == 3:
             alpha = np.ones((height, width, 1)) * 255
