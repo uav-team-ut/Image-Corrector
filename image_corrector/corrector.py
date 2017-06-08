@@ -5,16 +5,16 @@ import os
 from threading import Thread
 from time import sleep, time
 
-from .client import Client
-from .image import AerialImage
+import requests
+
+from .image import AerialImage, Position
 
 
-class Corrector:
-
+class Corrector(Object):
     ASPECT_RATIO = 16 / 9
     HORIZ_FOV = pi / 6
 
-    def __init__(self, image_folder=None):
+    def __init__(self, flight_view_url, image_folder=None):
         if not image_folder:
             image_folder = os.path.expanduser('~') + '/Image Corrector Images'
 
@@ -32,6 +32,7 @@ class Corrector:
         if not os.path.exists(image_folder + '/archive'):
             os.makedirs(image_folder + '/archive')
 
+        self._flight_view_url = 'http://' + flight_view_url;
         self._image_folder = image_folder
         self._image_list = []
         self._closed = False
@@ -52,6 +53,10 @@ class Corrector:
 
     def _start_thread(self):
         def corrector_thread():
+            r = requests.get(self._flight_view_url + '/api/time', timeout=None)
+
+            self.set_time(r.body)
+
             while not self._closed:
                 new_files = self._get_new_files()
 
@@ -62,28 +67,6 @@ class Corrector:
 
                     image = AerialImage(self, new_file)
                     self.add_image(image)
-
-                    alert = json.dumps({
-                        'type': 'image',
-                        'message': {
-                            'type': 'alert',
-                            'format': 'original',
-                            'number': self.image_count,
-                            'status': 'available'
-                        }
-                    })
-
-                    request = json.dumps({
-                        'type': 'telemetry',
-                        'message': {
-                            'type': 'image-request',
-                            'time': time,
-                            'number': self.image_count
-                        }
-                    })
-
-                    self._client.send(alert)
-                    self._client.send(request)
 
                 sleep(0.1)
 
@@ -114,10 +97,44 @@ class Corrector:
                 os.rmdir(folder)
 
     def add_image(self, image):
+        r_t = requests.get(
+            self._flight_view_url + '/api/telemetry/' + time,
+            timeout=None
+        )
+
+        telemetry = r_t.json()
+
+        position = Position(
+            lat=telemetry['lat'],
+            lon=telemetry['lon'],
+            alt=telemetry['alt'],
+            yaw=telemetry['yaw'],
+            pitch=telemetry['pitch'],
+            roll=telemetry['roll'],
+            cam_pitch=telemetry['cam_pitch'],
+            cam_roll=telemetry['cam_roll']
+        )
+
+        did_warp = image.set_position(position)
+
+        r_o = requests.post(
+            self._flight_view_url + '/api/images',
+            json=image.to_json(),
+            timeout=None
+        )
+
+        if did_warp:
+            r_w = requests.put(
+                self._flight_view_url + '/api/images/' +
+                    r_o.json()['id'],
+                json=image.to_json(True),
+                timeout=None
+            )
+
         self.image_list.append(image)
 
-    def set_time(self, time):
-        self._d_time = time - time()
+    def set_time(self, new_time):
+        self._d_time = new_time - time()
 
     @property
     def archive_name(self):
