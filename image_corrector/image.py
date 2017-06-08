@@ -20,6 +20,9 @@ class AerialImage:
 
         self._save_original(file_name)
 
+        self._time = corrector._d_time + os.path.getmtime(
+            self._corrector.image_folder + '/new/' + file_name)
+
         os.remove(self._corrector.image_folder + '/new/' + file_name)
 
     def set_position(self, position):
@@ -95,28 +98,32 @@ class AerialImage:
             loc = Location(lat, lon)
             c_loc = loc.get_location(Distance(c_x, c_y))
 
-            lat = c_loc.lat
-            lon = c_loc.lon
+            lat = c_loc[0]
+            lon = c_loc[1]
 
         with open(file_name, 'rb') as image:
             string = base64.b64encode(image.read()).decode('utf-8')
 
         if warped:
             return {
+                'time': self._time,
                 'data_warped': string,
                 'lat': lat,
                 'lon': lon,
                 'width': width,
                 'height': height,
-                'processed': False
+                'processed': False,
+                'processed_manual': False
             }
-        else:
-            return {
-                'data_original': string,
-                'lat': lat,
-                'lon': lon,
-                'processed': False
-            }
+        
+        return {
+            'time': self._time,
+            'data_original': string,
+            'lat': lat,
+            'lon': lon,
+            'processed': False,
+            'processed_manual': False
+        }
 
     def _warp(self):
         """

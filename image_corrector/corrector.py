@@ -10,9 +10,9 @@ import requests
 from .image import AerialImage, Position
 
 
-class Corrector(Object):
+class Corrector(object):
     ASPECT_RATIO = 16 / 9
-    HORIZ_FOV = pi / 6
+    HORIZ_FOV = 1.1693705988
 
     def __init__(self, flight_view_url, image_folder=None):
         if not image_folder:
@@ -47,15 +47,13 @@ class Corrector(Object):
                 self.archive_name):
             os.makedirs(self.image_folder + '/archive/' + self.archive_name)
 
-        self._client = Client(self)
-
         self._start_thread()
 
     def _start_thread(self):
         def corrector_thread():
             r = requests.get(self._flight_view_url + '/api/time', timeout=None)
 
-            self.set_time(r.body)
+            self.set_time(float(r.text))
 
             while not self._closed:
                 new_files = self._get_new_files()
@@ -98,7 +96,8 @@ class Corrector(Object):
 
     def add_image(self, image):
         r_t = requests.get(
-            self._flight_view_url + '/api/telemetry/' + time,
+            self._flight_view_url + '/api/telemetry/' + str(
+                time() + self._d_time),
             timeout=None
         )
 
@@ -116,20 +115,30 @@ class Corrector(Object):
         )
 
         did_warp = image.set_position(position)
-
-        r_o = requests.post(
-            self._flight_view_url + '/api/images',
-            json=image.to_json(),
-            timeout=None
-        )
+        r = None
 
         if did_warp:
-            r_w = requests.put(
-                self._flight_view_url + '/api/images/' +
-                    r_o.json()['id'],
-                json=image.to_json(True),
+            unwarped_json = image.to_json()
+            warped_json = image.to_json(True)
+
+            image_json = warped_json
+            image_json['data_original'] = unwarped_json['data_original']
+
+            r = requests.post(
+                self._flight_view_url + '/api/images/',
+                json=image_json,
                 timeout=None
             )
+        else:
+            r = requests.post(
+                self._flight_view_url + '/api/images',
+                json=image.to_json(),
+                timeout=None
+            )
+
+        if r.status_code != 200 and r.status_code != 201:
+            print('Got a bad status code while sending image: ' +
+                    str(r.status_code))
 
         self.image_list.append(image)
 
